@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>95 Centavos — Tu Plan</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#687386;--line:#e4e8ef;--accent:#4f46e5;--accent2:#eef2ff;--good:#16855b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:#111827;color:white;padding:24px 18px 18px;position:sticky;top:0;z-index:5}header h1{margin:0;font-size:25px}header p{margin:6px 0 0;color:#cbd5e1;font-size:13px}
+nav{display:flex;gap:8px;overflow:auto;padding:10px;background:white;border-bottom:1px solid var(--line);position:sticky;top:86px;z-index:4}
+nav button{border:0;background:#f1f5f9;padding:9px 13px;border-radius:20px;white-space:nowrap;font-weight:650;color:#475569}
+nav button.active{background:var(--accent);color:white}
+main{max-width:760px;margin:auto;padding:16px 14px 90px}.view{display:none}.view.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;margin:12px 0;box-shadow:0 2px 10px #00000008}
+h2{font-size:21px;margin:5px 0 12px}.muted{color:var(--muted);font-size:13px}.big{font-size:36px;font-weight:800}
+.progress{height:11px;background:#e8ecf3;border-radius:20px;overflow:hidden}.bar{height:100%;background:var(--accent);width:0}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{padding:14px;border-radius:14px;background:var(--accent2)}
+.insight{border:1px solid var(--line);border-radius:16px;padding:15px;margin:10px 0;background:white}.num{font-size:12px;color:var(--accent);font-weight:800}.insight h3{margin:4px 0 7px;font-size:17px}.insight p{margin:5px 0;line-height:1.42}.tag{display:inline-block;margin-top:8px;padding:5px 8px;border-radius:8px;background:#f1f5f9;font-size:12px;color:#475569}
+button.primary{background:var(--accent);color:white;border:0;border-radius:12px;padding:11px 15px;font-weight:750}button.ghost{background:#f1f5f9;color:#334155;border:0;border-radius:10px;padding:9px 12px}
+input,textarea,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:11px;background:white;color:var(--ink);font:inherit}textarea{min-height:130px;resize:vertical}
+.check{display:flex;gap:10px;align-items:flex-start;margin:11px 0}.check input{width:20px;height:20px;margin-top:2px}
+.phase{border-left:5px solid var(--accent);padding-left:13px;margin:15px 0}.phase h3{margin:0 0 3px}
+footer{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--line);padding:10px 14px;text-align:center;font-size:12px;color:var(--muted)}
+.search{margin-bottom:10px}
+.smallbtn{border:0;background:#eef2ff;color:#4338ca;border-radius:9px;padding:6px 9px;font-size:12px;font-weight:700}
+</style>
+</head>
+<body>
+<header><h1>95 CENTAVOS</h1><p>Un sistema práctico para convertir insights en conducta.</p></header>
+<nav id="nav">
+<button class="active" data-view="inicio">Inicio</button><button data-view="insights">70 Insights</button><button data-view="plan">Plan 90 días</button><button data-view="diario">Diario</button>
+</nav>
+<main>
+<section id="inicio" class="view active">
+<div class="card"><div class="muted">Progreso del programa</div><div class="big" id="pct">0%</div><div class="progress"><div class="bar" id="bar"></div></div><p class="muted" id="doneText">0 de 90 días completados</p></div>
+<div class="grid"><div class="stat"><b id="today">Día 1</b><br><span class="muted">día actual</span></div><div class="stat"><b id="streak">0</b><br><span class="muted">días marcados</span></div></div>
+<div class="card"><h2>Pregunta de hoy</h2><p><b>¿Qué persona quiero ser hoy?</b></p><p class="muted">No respondas con una intención abstracta. Define una conducta observable.</p><button class="primary" onclick="show('diario')">Escribir en diario</button></div>
+<div class="card"><h2>Las 6 fases</h2><div id="phasesHome"></div></div>
+</section>
+
+<section id="insights" class="view">
+<h2>70 Insights</h2><p class="muted">Cada insight incluye significado, acción y horizonte temporal.</p>
+<input class="search" id="search" placeholder="Buscar insight..." oninput="renderInsights()">
+<div id="insightsList"></div>
+</section>
+
+<section id="plan" class="view">
+<h2>Plan de 90 días</h2>
+<div class="card"><p><b>Regla central:</b> no intentes aplicar los 70 insights a la vez. Convierte conocimiento en una conducta observable.</p></div>
+<div id="planPhases"></div>
+<div class="card"><h2>Control diario</h2><div id="days"></div></div>
+</section>
+
+<section id="diario" class="view">
+<h2>Diario</h2><p class="muted">Guarda tus respuestas en el teléfono. Los datos se almacenan localmente en este navegador.</p>
+<div class="card"><label class="muted">Fecha</label><input type="date" id="date"></div>
+<div class="card"><label><b>¿Qué quiero realmente?</b></label><textarea id="q1" placeholder="Escribe sin intentar sonar bien..."></textarea></div>
+<div class="card"><label><b>¿Qué persona quiero ser hoy?</b></label><textarea id="q2"></textarea></div>
+<div class="card"><label><b>¿Qué acción concreta demuestra eso?</b></label><textarea id="q3"></textarea></div>
+<div class="card"><label><b>¿Actué desde miedo, ego o necesidad de reconocimiento?</b></label><textarea id="q4"></textarea></div>
+<div class="card"><label><b>¿A quién hice mejor hoy?</b></label><textarea id="q5"></textarea></div>
+<div class="card"><label><b>¿Qué debo corregir mañana?</b></label><textarea id="q6"></textarea></div>
+<button class="primary" onclick="saveJournal()">Guardar día</button>
+<p id="saved" class="muted"></p>
+</section>
+</main><footer>95 CENTAVOS • Tu progreso permanece en este dispositivo</footer>
+<script>
+const insights = [["La vida necesita un porqué", "Conecta tus acciones con motivos personales, no solo con utilidad.", "Escribe 5 razones por las que quieres seguir haciendo lo que haces.", "30 min; revisión mensual"], ["La vida es breve", "La finitud ayuda a priorizar lo verdaderamente importante.", "Lista 10 cosas que quieres vivir, construir o compartir; clasifícalas en 1 año, 5 años y vida.", "60 min"], ["Los proyectos son puentes", "Tener proyectos orienta la atención hacia el presente y el futuro.", "Mantén un proyecto corto, uno medio y uno largo.", "1 semana"], ["El sentido puede ser pequeño", "El propósito no necesita ser grandioso.", "Identifica 5 pequeñas cosas que hacen valiosa tu vida y protégelas en agenda.", "30 min"], ["El dinero no llena automáticamente vacíos", "Más dinero no resuelve necesariamente preguntas existenciales.", "Cuando persigas una meta económica, pregunta qué emoción esperas conseguir.", "Desde hoy"], ["Poder mirarte sin vergüenza", "El autorrespeto es parte central del bienestar.", "Registra qué hiciste que te hizo respetarte y qué quisieras corregir.", "15 min/semana"], ["Ser buena persona requiere elección", "La ética implica resistir impulsos destructivos.", "Antes de reaccionar, pregunta si tu respuesta representa a la persona que quieres ser.", "Permanente"], ["¿Soy quien quiero ser?", "Una pregunta brújula para decisiones difíciles.", "Úsala al cerrar decisiones importantes.", "Permanente"], ["Las decisiones hablan de ti", "La conducta del otro no determina quién eliges ser tú.", "Elimina el 'lo hice porque él empezó' y decide según tus valores.", "Desde hoy"], ["Ego saludable", "El autorrespeto y los límites son distintos de la arrogancia.", "Define 5 cosas que no aceptarás aunque tengan beneficio.", "30 min"], ["Ego dependiente del reconocimiento", "Necesitar demostrar superioridad puede esconder inseguridad.", "Registra durante 30 días cuándo necesitas demostrar que eres mejor.", "30 días"], ["No necesitas ser el primero", "La comparación permanente reduce aprendizaje y colaboración.", "Cambia '¿soy mejor?' por '¿qué puedo aportar?'.", "30 días"], ["Competir vs. compartir", "Ayudar a que otros crezcan también es una forma de éxito.", "Ayuda semanalmente a alguien sin beneficio inmediato.", "1/semana"], ["Amar implica vulnerabilidad", "Al amar entregas poder al otro para afectarte.", "Identifica vulnerabilidades y decide nunca usarlas como arma.", "30 min"], ["No usar el poder recibido", "El amor se demuestra especialmente durante el conflicto.", "Nunca uses confidencias o inseguridades de alguien para ganar una discusión.", "Permanente"], ["Elegir en vez de necesitar", "Una relación sana no debería ser la única condición para existir.", "Pregunta si estás eligiendo a alguien o sintiendo que no puedes vivir sin esa persona.", "20 min"], ["No cargar a otro con tu vacío", "La pareja no puede solucionar todo lo que te falta.", "Separa problemas personales de problemas de relación.", "30 min"], ["Los años no garantizan una relación", "Tiempo compartido no sustituye cuidado y elección cotidiana.", "Haz un gesto deliberado de cuidado semanal.", "1/semana"], ["Los pequeños detalles sostienen vínculos", "Microconductas repetidas pesan más que grandes declaraciones aisladas.", "Haz cada semana un gesto basado en una necesidad real del otro.", "1/semana"], ["No puedes saber el amor de tu vida por adelantado", "La pregunta útil es si pueden construir algo sano.", "Cambia '¿será la persona correcta?' por '¿podemos construir una relación sana?'.", "Permanente"], ["Detectar lo incorrecto es más concreto", "Hay señales claras de falta de respeto o incompatibilidad.", "Define 5 no negociables relacionales.", "30 min"], ["El amor se aprende", "Las primeras relaciones moldean lo que entendemos por amar.", "Escribe qué aprendiste de niño sobre el amor y qué quieres desaprender.", "60 min"], ["Lo familiar puede sentirse atractivo", "Podemos repetir patrones dañinos porque resultan conocidos.", "Ante una fuerte atracción, pregunta si te atrae la persona o el patrón familiar.", "En cada relación"], ["La autoestima influye en lo que toleras", "La percepción de merecimiento afecta los límites.", "Lista comportamientos de una relación respetuosa y comprueba si los exiges para ti.", "45 min"], ["Autosabotaje", "Podemos repetir conductas que sabemos que nos dañan.", "Mapea 3 patrones: disparador → conducta → recompensa → costo.", "60 min"], ["Saber no garantiza hacer", "Consumir información no equivale a cambiar.", "Convierte cada insight útil en una conducta observable.", "Permanente"], ["El inconsciente participa", "No todas las decisiones nacen de razones plenamente conscientes.", "Antes de decidir, pregunta qué necesidad intentas satisfacer realmente.", "15 min/decisión"], ["Libertad limitada pero suficiente", "No controlas todo, pero sí puedes elegir tu respuesta.", "Clasifica problemas en control, influencia y fuera de control.", "10 min"], ["La ambivalencia es normal", "Puedes querer dos cosas contradictorias a la vez.", "Escribe qué parte de ti quiere X y cuál quiere Y; calcula costos.", "15 min"], ["No necesitas certeza absoluta", "Decidir implica incertidumbre.", "Define información mínima necesaria y fecha límite para decidir.", "24–72 h"], ["La incertidumbre forma parte de la vida", "Eliminar toda incertidumbre no es posible.", "Haz semanalmente algo con incertidumbre calculada.", "1/semana"], ["Una decisión correcta puede salir mal", "El resultado no siempre mide la calidad del proceso.", "Después de fallar, evalúa primero cómo decidiste.", "Después de cada decisión"], ["No reduzcas una experiencia a su final", "Algo que terminó puede haber sido valioso.", "Escribe qué recibiste, aprendiste, aportaste y en qué te transformó.", "30–45 min"], ["El resultado también es quién te vuelves", "Las capacidades adquiridas pueden superar el resultado externo.", "Define 3 capacidades a desarrollar antes de cada proyecto.", "Antes de iniciar"], ["Evalúa el viaje", "El proceso también puede vivirse con intención.", "Añade una métrica de proceso a cada meta.", "En cada proyecto"], ["El miedo protege", "No todo miedo debe eliminarse.", "Pregunta si te está protegiendo o inhibiendo.", "Cada vez"], ["Evitar, evaluar o enfrentar", "No todos los miedos merecen la misma respuesta.", "Clasifica cada miedo en evitar, evaluar o enfrentar.", "5 min"], ["Valentía no es ausencia de miedo", "Es actuar a pesar de un miedo razonable.", "Haz una acción pequeña que normalmente evitarías por miedo.", "1/semana"], ["Exposición reduce miedo", "La práctica gradual aumenta tolerancia y capacidad.", "Divide un miedo en 5 niveles y empieza por el menor.", "4–6 semanas"], ["Un miedo puede vencer a otro", "El miedo al arrepentimiento puede superar al miedo a intentar.", "Pregunta qué dolerá más en 5 años: intentarlo o no.", "10 min"], ["No traicionar tu propio deseo", "Vivir solo para expectativas ajenas puede alejarte de tu vida.", "Detecta una decisión donde estés priorizando demasiado a otros.", "30 min"], ["Creencias limitantes no siempre son límites", "Una conclusión aprendida puede confundirse con imposibilidad.", "Para cada 'no puedo': evidencia a favor, contra y experimento.", "30 min"], ["Los límites reales existen", "No todo es posible y negar restricciones también es autoengaño.", "Clasifica obstáculos como reales o creencias.", "20 min"], ["Las creencias antiguas pueden gobernar", "Un fracaso antiguo puede seguir limitando decisiones actuales.", "Identifica una 'bola de hierro': frase o fracaso que aún te condiciona.", "45 min"], ["El deseo persistente es información", "Seguir queriendo algo merece investigación.", "Revisa un proyecto abandonado y evalúa si hoy las condiciones cambiaron.", "60 min"], ["Fracasar puede ser mejor que no intentar", "El fracaso enseña; la evitación puede generar arrepentimiento.", "Haz un experimento con costo de fallo aceptable.", "7 días"], ["El refuerzo positivo modifica conductas", "Reconocer una conducta aumenta su probabilidad de repetición.", "Reconoce explícitamente una mejora cuando la veas.", "Desde hoy"], ["Corregir sin reconocer genera miedo", "Si solo reaccionas al error, los aciertos se vuelven invisibles.", "Por cada corrección significativa, reconoce también un avance real.", "30 días"], ["El reconocimiento mejora el feedback", "Ver el esfuerzo ajeno hace más creíble una crítica específica.", "Antes de corregir, verifica si has reconocido avances.", "En cada feedback"], ["Liderar es aumentar capacidades", "El liderazgo efectivo hace mejores a quienes te rodean.", "Ayuda semanalmente a alguien a desarrollar una capacidad concreta.", "1/semana"], ["Ceder protagonismo es liderazgo", "Liderar también es crear oportunidades para otros.", "En proyectos pregunta quién puede crecer si le cedes la oportunidad.", "En cada proyecto"], ["Mejorar tu pequeño universo", "No necesitas transformar el mundo para generar impacto.", "Elige 5 personas y una conducta que mejore cada relación.", "1 semana"], ["Ser buena persona puede ir contra la corriente", "La cultura puede premiar egoísmo, competencia y gratificación inmediata.", "Haz una acción generosa sin publicarla ni esperar retorno.", "1/semana"], ["Pensar antes de opinar", "Tener una opinión no la convierte en verdad.", "Pregunta qué evidencia tienes y qué podría demostrar que estás equivocado.", "Permanente"], ["La velocidad digital puede destruir reflexión", "Responder en caliente favorece simplificación y conflicto.", "Aplica una pausa de 10 minutos a mensajes emocionalmente cargados.", "Desde hoy"], ["Preguntar antes de atacar", "Verificar la interpretación reduce conflictos innecesarios.", "Pregunta: '¿Esto es realmente lo que quisiste decir?'", "En cada conflicto"], ["No persigas la felicidad obsesivamente", "La felicidad como obligación puede generar frustración.", "Cambia '¿soy feliz?' por '¿vivo según lo importante para mí?'.", "Revisión semanal"], ["La faltacidad", "Siempre habrá algo que falte; eso no invalida lo que sí existe.", "Lista lo que tienes junto a lo que falta.", "5 min/día"], ["Una vida feliz puede contener tristeza", "El dolor no borra automáticamente lo valioso.", "Permite que coexistan tristeza y momentos buenos.", "Cuando ocurra"], ["Vivir con 95 centavos", "Esperar el 100% para disfrutar garantiza frustración.", "Pregunta diariamente qué 95 centavos ya están presentes.", "5 min/día"], ["Mantener vivo el deseo", "Los deseos y proyectos dan dirección.", "Renueva trimestralmente una lista de deseos y proyectos.", "Trimestral"], ["La pasión también puede dañar", "La intensidad puede convertirse en exceso o compulsión.", "Define una señal de exceso para cada actividad apasionante.", "30 min"], ["La pasión necesita límites", "Algo amado puede volverse dañino sin regulación.", "Define límites de tiempo, descanso y recuperación.", "1 semana"], ["Descansar es parte de la pasión", "El descanso no contradice el compromiso; lo sostiene.", "Programa descanso como parte del trabajo.", "Desde esta semana"], ["Escucha a quienes te quieren", "Otros pueden detectar desmesura antes que tú.", "Elige 2 personas autorizadas a decirte que te estás excediendo.", "1 conversación"], ["No toda pasión debe llevarse al extremo", "Algo bueno puede deteriorar sueño, salud, relaciones o criterio.", "Crea un semáforo: verde, amarillo, rojo.", "30 min"], ["La fe no se fabrica voluntariamente", "Es útil distinguir creencias, conocimientos e incertidumbres.", "Separa lo que sabes, crees y no sabes.", "30 min"], ["La gratitud reconoce al otro", "No basta recibir ayuda; importa reconocerla.", "Agradece cada día a una persona por algo concreto.", "1/día"], ["La ingratitud deteriora vínculos", "Olvidar contribuciones ajenas puede alimentar egocentrismo.", "Contacta a 3 personas que contribuyeron a tu camino.", "1 semana"], ["El propósito puede ser una fórmula simple", "No necesitas una misión gigantesca para orientar tu vida.", "Completa: 'Utilizaré ___ para aportar ___ mientras vivo según ___'.", "45 min"]];
+const phases = [["Autoconocimiento", "1–15", "Diario de decisiones + pregunta '¿Soy quien quiero ser?'"], ["Deseo", "16–30", "Mapa de deseos, proyectos y creencias antiguas"], ["Decisión", "31–45", "Control / influencia / fuera de control + decisiones con incertidumbre"], ["Miedo", "46–60", "Exposición progresiva a un miedo inhibidor"], ["Relaciones", "61–75", "Cuidado, límites y reconocimiento"], ["Liderazgo", "76–90", "Desarrollar deliberadamente a otra persona"]];
+const key='95centavos_state_v1';
+let state=JSON.parse(localStorage.getItem(key)||'{"days":[],"journal":{}}');
+function save(){localStorage.setItem(key,JSON.stringify(state));}
+function show(id){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===id));if(id==='insights')renderInsights();if(id==='plan')renderDays();}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));
+function renderInsights(){
+ const q=(document.getElementById('search')?.value||'').toLowerCase();
+ document.getElementById('insightsList').innerHTML=insights.map((x,i)=>({x,i})).filter(o=>!q||o.x.join(' ').toLowerCase().includes(q)).map(o=>{
+  let [title,meaning,action,time]=o.x;
+  return `<div class="insight"><div class="num">INSIGHT ${o.i+1}</div><h3>${title}</h3><p>${meaning}</p><p><b>Acción:</b> ${action}</p><span class="tag">${time}</span></div>`
+ }).join('');
+}
+function renderPhases(){
+ document.getElementById('phasesHome').innerHTML=phases.map((p,i)=>`<div class="phase"><h3>${i+1}. ${p[0]}</h3><div class="muted">Días ${p[1]} · ${p[2]}</div></div>`).join('');
+ document.getElementById('planPhases').innerHTML=phases.map((p,i)=>`<div class="card"><div class="phase"><h3>Fase ${i+1}: ${p[0]}</h3><div class="muted">Días ${p[1]}</div><p>${p[2]}</p></div></div>`).join('');
+}
+function renderDays(){
+ let html='';
+ for(let i=1;i<=90;i++){let checked=state.days.includes(i);html+=`<label class="check"><input type="checkbox" ${checked?'checked':''} onchange="toggleDay(${i},this.checked)"><span><b>Día ${i}</b><br><span class="muted">${dayPrompt(i)}</span></span></label>`}
+ document.getElementById('days').innerHTML=html;
+}
+function dayPrompt(i){
+ if(i<=15)return 'Autoconocimiento: ¿soy quien quiero ser?';
+ if(i<=30)return 'Deseo: ¿qué quiero y qué expectativas ajenas estoy siguiendo?';
+ if(i<=45)return 'Decisión: separa control, influencia y no control.';
+ if(i<=60)return 'Miedo: una acción progresiva, pequeña y deliberada.';
+ if(i<=75)return 'Relaciones: cuidado, límites y reconocimiento.';
+ return 'Liderazgo: ¿a quién ayudé a crecer hoy?';
+}
+function toggleDay(i,v){if(v&&!state.days.includes(i))state.days.push(i);if(!v)state.days=state.days.filter(x=>x!==i);save();updateHome();renderDays();}
+function updateHome(){let n=state.days.length,p=Math.round(n/90*100);document.getElementById('pct').textContent=p+'%';document.getElementById('bar').style.width=p+'%';document.getElementById('doneText').textContent=n+' de 90 días completados';document.getElementById('streak').textContent=n;document.getElementById('today').textContent='Día '+Math.min(90,n+1)}
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function loadJournal(){
+ let d=document.getElementById('date').value, j=state.journal[d]||{};['q1','q2','q3','q4','q5','q6'].forEach(k=>document.getElementById(k).value=j[k]||'');
+}
+function saveJournal(){
+ let d=document.getElementById('date').value;state.journal[d]={};['q1','q2','q3','q4','q5','q6'].forEach(k=>state.journal[d][k]=document.getElementById(k).value);save();document.getElementById('saved').textContent='Guardado localmente · '+new Date().toLocaleTimeString(); 
+}
+document.getElementById('date').value=todayKey();document.getElementById('date').onchange=loadJournal;
+renderPhases();renderInsights();renderDays();updateHome();loadJournal();
+</script></body></html>
